@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package service;
+
+import "google/api/annotations.proto";
+
+option go_package = "./servicepb";
+
+
+service Configurator {
+  rpc SetHostname (HostnameRequest) returns (HostnameReply) {
+    option(google.api.http) = {
+      post: "/hostname"
+      body: "*"
+    };
+  }
+}
+
+message HostnameRequest {
+  string hostname = 1;
+}
+
+message HostnameReply {
+  string hostname = 1;
+}
