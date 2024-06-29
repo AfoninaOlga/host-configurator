@@ -1,5 +1,5 @@
 SRCDIR=./cmd
-TARGET=configurer
+TARGET=configurator
 
 .PHONY: build
 build: proto tidy
