@@ -1,0 +1,98 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "service.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "Configurator"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/hostname": {
+      "post": {
+        "operationId": "Configurator_SetHostname",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/serviceHostnameReply"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/serviceHostnameRequest"
+            }
+          }
+        ],
+        "tags": [
+          "Configurator"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "serviceHostnameReply": {
+      "type": "object",
+      "properties": {
+        "hostname": {
+          "type": "string"
+        }
+      }
+    },
+    "serviceHostnameRequest": {
+      "type": "object",
+      "properties": {
+        "hostname": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
