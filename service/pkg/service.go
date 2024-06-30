@@ -19,10 +19,34 @@ type Server struct {
 	resolvePath  string
 	hostMtx      sync.Mutex
 	dnsMtx       sync.RWMutex
+	servers      []string
+	linesToWrite []string
 }
 
 func NewServer(hostNamepath string, resolvePath string) *Server {
-	return &Server{hostnamePath: hostNamepath, resolvePath: resolvePath}
+	file, err := os.OpenFile(resolvePath, os.O_RDONLY, 0777)
+	if err != nil {
+		return nil
+	}
+	defer file.Close()
+
+	// Initialize dns servers list and get data to write to /etc/resolv.conf
+	servers := make([]string, 0, 50)
+	linesToWrite := make([]string, 0, 50)
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		fileLine := scanner.Text()
+		line := strings.Split(fileLine, " ")
+		if len(line) == 2 && line[0] == "nameserver" && isValidIpAddress(line[1]) {
+			servers = append(servers, line[1])
+		} else {
+			linesToWrite = append(linesToWrite, fileLine)
+		}
+	}
+	log.Println(linesToWrite)
+	log.Println(servers)
+
+	return &Server{hostnamePath: hostNamepath, resolvePath: resolvePath, servers: servers, linesToWrite: linesToWrite}
 }
 
 func (s *Server) SetHostname(ctx context.Context, in *servicepb.HostnameRequest) (*servicepb.HostnameReply, error) {
@@ -36,35 +60,33 @@ func (s *Server) SetHostname(ctx context.Context, in *servicepb.HostnameRequest)
 	if err != nil {
 		return nil, err
 	}
-	log.Println("SetHostname called")
-	return &servicepb.HostnameReply{Hostname: in.Hostname}, nil
-}
 
-func (s *Server) AddDnsServer(address string) error {
-	if !isValidIpAddress(address) {
-		return fmt.Errorf("invalid dns address")
-	}
-	return nil
+	return &servicepb.HostnameReply{Hostname: in.Hostname}, nil
 }
 
 func (s *Server) ListDnsServers(ctx context.Context, in *servicepb.Empty) (*servicepb.DnsListReply, error) {
 	s.dnsMtx.RLock()
 	defer s.dnsMtx.RUnlock()
-	file, err := os.OpenFile(s.resolvePath, os.O_RDONLY, 0777)
+	return &servicepb.DnsListReply{Servers: s.servers}, nil
+}
+
+func (s *Server) AddDnsServer(ctx context.Context, in *servicepb.AddDnsRequest) (*servicepb.Empty, error) {
+	if !isValidIpAddress(in.Server) {
+		return nil, fmt.Errorf("invalid DNS server")
+	}
+	s.dnsMtx.Lock()
+	defer s.dnsMtx.Unlock()
+
+	if s.has(in.Server) {
+		log.Println()
+		return &servicepb.Empty{}, nil
+	}
+	s.servers = append(s.servers, in.Server)
+	err := s.writeFile()
 	if err != nil {
 		return nil, err
 	}
-	defer file.Close()
-
-	servers := make([]string, 0, 20)
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		line := strings.Split(scanner.Text(), " ")
-		if len(line) == 2 && line[0] == "nameserver" && isValidIpAddress(line[1]) {
-			servers = append(servers, line[1])
-		}
-	}
-	return &servicepb.DnsListReply{Servers: servers}, nil
+	return &servicepb.Empty{}, nil
 }
 
 func isValidIpAddress(ip string) bool {
@@ -85,4 +107,22 @@ func isValidHostname(hostname string) bool {
 		return true
 	}
 	return false
+}
+
+func (s *Server) has(server string) bool {
+	for _, srv := range s.servers {
+		if srv == server {
+			return true
+		}
+	}
+	return false
+}
+
+func (s *Server) writeFile() error {
+	content := strings.Join(s.linesToWrite, "\n") + "\n"
+	if len(s.servers) > 0 {
+		content += "nameserver " + strings.Join(s.servers, "\nnameserver ") + "\n"
+	}
+	err := os.WriteFile(s.resolvePath, []byte(content+"\n"), 0644)
+	return err
 }

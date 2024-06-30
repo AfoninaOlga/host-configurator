@@ -30,6 +30,7 @@ func main() {
 	// Set config default values
 	viper.SetDefault("hostname_path", "/etc/hostname")
 	viper.SetDefault("resolve_path", "/etc/resolv.conf")
+	viper.SetDefault("grpc_port", "8080")
 
 	// Create a listener on TCP port
 	lis, err := net.Listen("tcp", ":"+viper.GetString("grpc_port"))

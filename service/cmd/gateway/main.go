@@ -31,6 +31,7 @@ func main() {
 
 	// Set config default values
 	viper.SetDefault("grpc_port", "8080")
+	viper.SetDefault("grpc_addr", "127.0.0.1")
 	viper.SetDefault("grpc_gw_port", "8090")
 
 	ctx, cancel := context.WithCancel(context.Background())
@@ -39,7 +40,7 @@ func main() {
 	// Create a client connection to the gRPC server we just started
 	// This is where the gRPC-Gateway proxies the requests
 	conn, err := grpc.NewClient(
-		"0.0.0.0:"+viper.GetString("grpc_port"),
+		viper.GetString("grpc_addr")+":"+viper.GetString("grpc_port"),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 	if err != nil {

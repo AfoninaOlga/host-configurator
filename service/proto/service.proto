@@ -21,12 +21,22 @@ service Configurator {
       get: "/dns-servers"
     };
   }
+  // Adds DNS server to list
+  rpc AddDnsServer (AddDnsRequest) returns (Empty) {
+    option(google.api.http) = {
+      put: "/dns-servers/{server}"
+    };
+  }
 }
 
 message Empty { }
 
 message DnsListReply {
   repeated string servers = 1;
+}
+
+message AddDnsRequest {
+  string server = 1;
 }
 
 message HostnameRequest {
