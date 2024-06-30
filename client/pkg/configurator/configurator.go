@@ -50,7 +50,38 @@ func (c Configurator) SetHostname(hostname string) error {
 		if err != nil {
 			return fmt.Errorf("error getting response: %w", err)
 		}
-		fmt.Println("Hostname changed to " + respBody.Hostname)
 	}
 	return nil
+}
+
+func (c Configurator) ListServers() ([]string, error) {
+	apiReq, err := http.NewRequest("GET", c.apiUrl+"/dns-servers", nil)
+	if err != nil {
+		return nil, fmt.Errorf("error while creating request occurred: %w", err)
+	}
+	resp, err := c.httpClient.Do(apiReq)
+	if err != nil {
+		return nil, fmt.Errorf("error while sending request occurred: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		var respBody struct {
+			Code    int    `json:"code"`
+			Message string `json:"message"`
+		}
+		err = json.NewDecoder(resp.Body).Decode(&respBody)
+		if err != nil {
+			return nil, fmt.Errorf("error getting response: %w", err)
+		}
+		return nil, fmt.Errorf("error getting servers: %s", respBody.Message)
+	}
+	var respBody struct {
+		Servers []string `json:"servers"`
+	}
+	err = json.NewDecoder(resp.Body).Decode(&respBody)
+	if err != nil {
+		return nil, fmt.Errorf("error getting service response: %w", err)
+	}
+	return respBody.Servers, nil
 }
