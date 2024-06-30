@@ -20,7 +20,6 @@
 # Go workspace file
 go.work
 
-# Generated files
-*.pb.go
-*.pb.gw.go
-*.swagger.json
+.idea/
+*/main
+*/configurator
