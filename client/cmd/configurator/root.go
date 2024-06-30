@@ -1,6 +1,7 @@
 package configurator
 
 import (
+	conf "github.com/AfoninaOlga/hostname-configurator-client/pkg/configurator"
 	"github.com/spf13/cobra"
 	"log"
 	"os"
@@ -26,4 +27,4 @@ func Execute() {
 	}
 }
 
-//var configurator = conf.NewConfigurator("http://localhost:8090")
+var configurator = conf.NewConfigurator("http://localhost:8090")
