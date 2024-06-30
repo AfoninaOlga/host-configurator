@@ -8,12 +8,25 @@ option go_package = "./servicepb";
 
 
 service Configurator {
+  // Sets hostname
   rpc SetHostname (HostnameRequest) returns (HostnameReply) {
     option(google.api.http) = {
       post: "/hostname"
       body: "*"
     };
   }
+  // Returns list of DNS servers
+  rpc ListDnsServers (Empty) returns (DnsListReply) {
+    option(google.api.http) = {
+      get: "/dns-servers"
+    };
+  }
+}
+
+message Empty { }
+
+message DnsListReply {
+  repeated string servers = 1;
 }
 
 message HostnameRequest {
