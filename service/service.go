@@ -3,7 +3,7 @@ package host_service
 import (
 	"context"
 	"fmt"
-	servicepb "github.com/AfoninaOlga/hostname-configurator/proto"
+	servicepb "github.com/AfoninaOlga/hostname-configurator/gen"
 	"log"
 	"net"
 	"regexp"

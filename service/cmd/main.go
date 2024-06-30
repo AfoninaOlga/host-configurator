@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	host_conf "github.com/AfoninaOlga/hostname-configurator"
-	servicepb "github.com/AfoninaOlga/hostname-configurator/proto"
+	servicepb "github.com/AfoninaOlga/hostname-configurator/gen"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/spf13/viper"
 	"google.golang.org/grpc"
