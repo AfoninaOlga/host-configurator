@@ -1,9 +1,17 @@
 SRCDIR=./cmd
-TARGET=configurator
+GATEWAY=gateway
+SERVICE=service
 
-.PHONY: build
-build: proto tidy
-	go build -o $(TARGET) $(SRCDIR)
+.PHONY: all
+all: gateway service
+
+.PHONY: gateway
+gateway: tidy
+	go build -o $@ $(SRCDIR)/$(GATEWAY)/main.go
+
+.PHONY: service
+service: tidy
+	go build -o $@ $(SRCDIR)/$(SERVICE)/main.go
 
 .PHONY: tidy
 tidy:
@@ -20,4 +28,4 @@ proto:
 
 .PHONY: clean
 clean:
-	$(RM) $(TARGET)
+	$(RM) $(SERVICE) $(GATEWAY)
