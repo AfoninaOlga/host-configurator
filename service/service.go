@@ -1,11 +1,13 @@
 package host_service
 
 import (
+	"bufio"
 	"context"
 	"fmt"
 	servicepb "github.com/AfoninaOlga/hostname-configurator/gen"
 	"log"
 	"net"
+	"os"
 	"regexp"
 	"strings"
 	"sync"
@@ -17,6 +19,7 @@ type Server struct {
 	hostnamePath string
 	resolvePath  string
 	hostMtx      sync.Mutex
+	dnsMtx       sync.RWMutex
 }
 
 func NewServer(hostNamepath string, resolvePath string) *Server {
@@ -43,6 +46,26 @@ func (s *Server) AddDnsServer(address string) error {
 		return fmt.Errorf("invalid dns address")
 	}
 	return nil
+}
+
+func (s *Server) ListDnsServers(ctx context.Context, in *servicepb.Empty) (*servicepb.DnsListReply, error) {
+	s.dnsMtx.RLock()
+	s.dnsMtx.RUnlock()
+	file, err := os.OpenFile(s.resolvePath, os.O_RDONLY, 0777)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	servers := make([]string, 0, 20)
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := strings.Split(scanner.Text(), " ")
+		if len(line) == 2 && line[0] == "nameserver" && isValidIpAddress(line[1]) {
+			servers = append(servers, line[1])
+		}
+	}
+	return &servicepb.DnsListReply{Servers: servers}, nil
 }
 
 func isValidIpAddress(ip string) bool {
