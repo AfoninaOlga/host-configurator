@@ -8,6 +8,7 @@ import (
 	"net"
 	"regexp"
 	"strings"
+	"sync"
 	"syscall"
 )
 
@@ -15,6 +16,7 @@ type Server struct {
 	servicepb.UnimplementedConfiguratorServer
 	hostnamePath string
 	resolvePath  string
+	hostMtx      sync.Mutex
 }
 
 func NewServer(hostNamepath string, resolvePath string) *Server {
@@ -26,6 +28,8 @@ func (s *Server) SetHostname(ctx context.Context, in *servicepb.HostnameRequest)
 		log.Println("Got invalid hostname to set")
 		return nil, fmt.Errorf("invalid hostname")
 	}
+	s.hostMtx.Lock()
+	defer s.hostMtx.Unlock()
 	err := syscall.Sethostname([]byte(in.Hostname))
 	if err != nil {
 		return nil, err
