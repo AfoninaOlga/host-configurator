@@ -16,8 +16,32 @@
     "application/json"
   ],
   "paths": {
+    "/dns-servers": {
+      "get": {
+        "summary": "Returns list of DNS servers",
+        "operationId": "Configurator_ListDnsServers",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/serviceDnsListReply"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "Configurator"
+        ]
+      }
+    },
     "/hostname": {
       "post": {
+        "summary": "Sets hostname",
         "operationId": "Configurator_SetHostname",
         "responses": {
           "200": {
@@ -74,6 +98,17 @@
           "items": {
             "type": "object",
             "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "serviceDnsListReply": {
+      "type": "object",
+      "properties": {
+        "servers": {
+          "type": "array",
+          "items": {
+            "type": "string"
           }
         }
       }
