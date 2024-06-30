@@ -9,10 +9,12 @@ import (
 
 type Server struct {
 	servicepb.UnimplementedConfiguratorServer
+	hostnamePath string
+	resolvePath  string
 }
 
-func NewServer() *Server {
-	return &Server{}
+func NewServer(hostNamepath string, resolvePath string) *Server {
+	return &Server{hostnamePath: hostNamepath, resolvePath: resolvePath}
 }
 
 func (s *Server) SetHostname(ctx context.Context, in *servicepb.HostnameRequest) (*servicepb.HostnameReply, error) {

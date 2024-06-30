@@ -1,0 +1,4 @@
+hostname_path: /etc/hostname
+resolve_path: /etc/resolv.conf
+grpc_port: 8080
+grpc_gw_port: 8090

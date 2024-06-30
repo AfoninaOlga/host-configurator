@@ -5,6 +5,7 @@ import (
 	host_conf "github.com/AfoninaOlga/hostname-configurator"
 	servicepb "github.com/AfoninaOlga/hostname-configurator/proto"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"log"
@@ -13,8 +14,23 @@ import (
 )
 
 func main() {
+	// Parse command line flag
+	configPath := ParseFlag()
+
+	// Initialize and load configuration from file
+	viper.SetConfigFile(configPath)
+	if err := viper.ReadInConfig(); err != nil {
+		log.Fatal(err)
+	}
+
+	// Set config default values
+	viper.SetDefault("grpc_port", "8080")
+	viper.SetDefault("grpc_gw_port", "8090")
+	viper.SetDefault("hostname_path", "/etc/hostname")
+	viper.SetDefault("resolve_path", "/etc/resolv.conf")
+
 	// Create a listener on TCP port
-	lis, err := net.Listen("tcp", ":8080")
+	lis, err := net.Listen("tcp", ":"+viper.GetString("grpc_port"))
 	if err != nil {
 		log.Fatalln("Failed to listen:", err)
 	}
@@ -25,10 +41,10 @@ func main() {
 
 	// Create a gRPC server object
 	s := grpc.NewServer()
-	// Attach the Greeter service to the server
-	servicepb.RegisterConfiguratorServer(s, &host_conf.Server{})
+	// Attach the Configurator service to the server
+	servicepb.RegisterConfiguratorServer(s, host_conf.NewServer(viper.GetString("hostname_path"), viper.GetString("resolve_path")))
 	// Serve gRPC Server
-	log.Println("Serving gRPC on 0.0.0.0:8080")
+	log.Printf("Serving gRPC on 0.0.0.0:%s\n", viper.GetString("grpc_port"))
 	go func() {
 		log.Fatalln(s.Serve(lis))
 	}()
@@ -36,7 +52,7 @@ func main() {
 	// Create a client connection to the gRPC server we just started
 	// This is where the gRPC-Gateway proxies the requests
 	conn, err := grpc.NewClient(
-		"0.0.0.0:8080",
+		"0.0.0.0:"+viper.GetString("grpc_port"),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 	if err != nil {
@@ -51,10 +67,10 @@ func main() {
 	}
 
 	gwServer := &http.Server{
-		Addr:    ":8090",
+		Addr:    ":" + viper.GetString("grpc_gw_port"),
 		Handler: gwmux,
 	}
 
-	log.Println("Serving gRPC-Gateway on http://0.0.0.0:8090")
+	log.Printf("Serving gRPC-Gateway on http://0.0.0.0:%s\n", viper.GetString("grpc_gw_port"))
 	log.Fatalln(gwServer.ListenAndServe())
 }
