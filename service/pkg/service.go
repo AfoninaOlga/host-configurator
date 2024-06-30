@@ -11,7 +11,6 @@ import (
 	"regexp"
 	"strings"
 	"sync"
-	"syscall"
 )
 
 type Server struct {
@@ -33,7 +32,7 @@ func (s *Server) SetHostname(ctx context.Context, in *servicepb.HostnameRequest)
 	}
 	s.hostMtx.Lock()
 	defer s.hostMtx.Unlock()
-	err := syscall.Sethostname([]byte(in.Hostname))
+	err := os.WriteFile(s.hostnamePath, []byte(in.Hostname+"\n"), 0644)
 	if err != nil {
 		return nil, err
 	}
