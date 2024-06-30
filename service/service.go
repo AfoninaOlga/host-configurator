@@ -38,15 +38,19 @@ func (s *Server) SetHostname(ctx context.Context, in *servicepb.HostnameRequest)
 	return &servicepb.HostnameReply{Hostname: in.Hostname}, nil
 }
 
-func isValidIpAddress(ip string) bool {
-	if net.ParseIP(ip) == nil {
-		return false
+func (s *Server) AddDnsServer(address string) error {
+	if !isValidIpAddress(address) {
+		return fmt.Errorf("invalid dns address")
 	}
-	return true
+	return nil
+}
+
+func isValidIpAddress(ip string) bool {
+	return net.ParseIP(ip) != nil
 }
 
 func isValidHostname(hostname string) bool {
-	hostRegex := regexp.MustCompile("^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9])\\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9-]*[A-Za-z0-9])$")
+	hostRegex := regexp.MustCompile(`^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9-]*[A-Za-z0-9])$`)
 	if hostRegex.MatchString(hostname) {
 		if len(hostname) > 255 {
 			return false
