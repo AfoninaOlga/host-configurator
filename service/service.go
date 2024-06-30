@@ -55,9 +55,7 @@ func isValidHostname(hostname string) bool {
 		if len(hostname) > 255 {
 			return false
 		}
-		for _, s := range strings.FieldsFunc(hostname, func(r rune) bool {
-			return r == '.'
-		}) {
+		for _, s := range strings.Split(hostname, ".") {
 			if len(s) > 63 {
 				return false
 			}
