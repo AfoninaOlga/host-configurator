@@ -50,7 +50,7 @@ func (s *Server) AddDnsServer(address string) error {
 
 func (s *Server) ListDnsServers(ctx context.Context, in *servicepb.Empty) (*servicepb.DnsListReply, error) {
 	s.dnsMtx.RLock()
-	s.dnsMtx.RUnlock()
+	defer s.dnsMtx.RUnlock()
 	file, err := os.OpenFile(s.resolvePath, os.O_RDONLY, 0777)
 	if err != nil {
 		return nil, err
