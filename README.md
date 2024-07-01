@@ -138,7 +138,7 @@ A hostname may not start with a hyphen.
 Before run make sure `grpc_addr` is set to `"hostname-service"` in `service/configs/gateway.yaml`
 
 ```bash
-./e2e.sh
+./test/e2e.sh
 ```
 ### Unit tests
 
