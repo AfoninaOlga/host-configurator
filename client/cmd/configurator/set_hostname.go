@@ -1,8 +1,8 @@
 package configurator
 
 import (
+	"fmt"
 	"github.com/spf13/cobra"
-	"log"
 )
 
 var setHostname = &cobra.Command{
@@ -14,10 +14,10 @@ var setHostname = &cobra.Command{
 		hostname := args[0]
 		err := configurator.SetHostname(hostname)
 		if err != nil {
-			log.Printf("error updating hostname: %v\n", err)
+			fmt.Printf("Couldn't update hostname. Reason: %v\n", err)
 			return
 		}
-		log.Printf("Hostname set to %s\n", hostname)
+		fmt.Printf("Hostname is set to '%s'\n", hostname)
 	},
 }
 
