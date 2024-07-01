@@ -1,0 +1,8 @@
+FROM golang:1.22.4
+
+WORKDIR /app
+COPY ./cmd/service/main.go ./go.mod ./configs/service.yaml /app
+COPY ./pkg /app/pkg
+COPY ./gen /app/gen
+RUN go mod tidy
+ENTRYPOINT ["go", "run", "/app/main.go", "-c", "service.yaml"]

@@ -20,7 +20,7 @@
 # Go workspace file
 go.work
 
-# Generated files
-*.pb.go
-*.pb.gw.go
-*.swagger.json
+.idea/
+client/main
+service/service
+service/gateway

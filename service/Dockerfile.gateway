@@ -1,0 +1,7 @@
+FROM golang:1.22.4
+
+WORKDIR /app
+COPY ./cmd/gateway/main.go ./go.mod ./configs/gateway.yaml /app
+COPY ./gen /app/gen
+RUN go mod tidy
+ENTRYPOINT ["go", "run", "/app/main.go", "-c", "./gateway.yaml"]

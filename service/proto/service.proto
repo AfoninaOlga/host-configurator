@@ -1,0 +1,64 @@
+syntax = "proto3";
+
+package service;
+
+import "google/api/annotations.proto";
+
+option go_package = "./servicepb";
+
+
+service Configurator {
+  // Sets hostname
+  rpc SetHostname (HostnameRequest) returns (HostnameReply) {
+    option(google.api.http) = {
+      post: "/hostname"
+      body: "*"
+    };
+  }
+  // Gets hostname
+  rpc GetHostname (Empty) returns (HostnameReply) {
+    option(google.api.http) = {
+      get: "/hostname"
+    };
+  }
+  // Returns list of DNS servers
+  rpc ListDnsServers (Empty) returns (DnsListReply) {
+    option(google.api.http) = {
+      get: "/dns-servers"
+    };
+  }
+  // Adds DNS server to list
+  rpc AddDnsServer (AddDnsRequest) returns (Empty) {
+    option(google.api.http) = {
+      put: "/dns-servers/{server}"
+    };
+  }
+  // Deletes DNS server from list
+  rpc DeleteDnsServer (DeleteDnsRequest) returns (Empty) {
+    option(google.api.http) = {
+      delete: "/dns-servers/{server}"
+    };
+  }
+}
+
+message Empty { }
+
+message DnsListReply {
+  repeated string servers = 1;
+}
+
+message AddDnsRequest {
+  string server = 1;
+}
+
+message DeleteDnsRequest {
+  string server = 1;
+}
+
+message HostnameRequest {
+  string hostname = 1;
+}
+
+message HostnameReply {
+  string hostname = 1;
+}
