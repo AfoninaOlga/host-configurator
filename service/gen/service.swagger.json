@@ -39,7 +39,88 @@
         ]
       }
     },
+    "/dns-servers/{server}": {
+      "delete": {
+        "summary": "Deletes DNS server from list",
+        "operationId": "Configurator_DeleteDnsServer",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/serviceEmpty"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "server",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Configurator"
+        ]
+      },
+      "put": {
+        "summary": "Adds DNS server to list",
+        "operationId": "Configurator_AddDnsServer",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/serviceEmpty"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "server",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Configurator"
+        ]
+      }
+    },
     "/hostname": {
+      "get": {
+        "summary": "Gets hostname",
+        "operationId": "Configurator_GetHostname",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/serviceHostnameReply"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "Configurator"
+        ]
+      },
       "post": {
         "summary": "Sets hostname",
         "operationId": "Configurator_SetHostname",
@@ -112,6 +193,9 @@
           }
         }
       }
+    },
+    "serviceEmpty": {
+      "type": "object"
     },
     "serviceHostnameReply": {
       "type": "object",

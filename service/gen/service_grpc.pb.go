@@ -19,8 +19,11 @@ import (
 const _ = grpc.SupportPackageIsVersion8
 
 const (
-	Configurator_SetHostname_FullMethodName    = "/service.Configurator/SetHostname"
-	Configurator_ListDnsServers_FullMethodName = "/service.Configurator/ListDnsServers"
+	Configurator_SetHostname_FullMethodName     = "/service.Configurator/SetHostname"
+	Configurator_GetHostname_FullMethodName     = "/service.Configurator/GetHostname"
+	Configurator_ListDnsServers_FullMethodName  = "/service.Configurator/ListDnsServers"
+	Configurator_AddDnsServer_FullMethodName    = "/service.Configurator/AddDnsServer"
+	Configurator_DeleteDnsServer_FullMethodName = "/service.Configurator/DeleteDnsServer"
 )
 
 // ConfiguratorClient is the client API for Configurator service.
@@ -29,8 +32,14 @@ const (
 type ConfiguratorClient interface {
 	// Sets hostname
 	SetHostname(ctx context.Context, in *HostnameRequest, opts ...grpc.CallOption) (*HostnameReply, error)
+	// Gets hostname
+	GetHostname(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*HostnameReply, error)
 	// Returns list of DNS servers
 	ListDnsServers(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*DnsListReply, error)
+	// Adds DNS server to list
+	AddDnsServer(ctx context.Context, in *AddDnsRequest, opts ...grpc.CallOption) (*Empty, error)
+	// Deletes DNS server from list
+	DeleteDnsServer(ctx context.Context, in *DeleteDnsRequest, opts ...grpc.CallOption) (*Empty, error)
 }
 
 type configuratorClient struct {
@@ -51,10 +60,40 @@ func (c *configuratorClient) SetHostname(ctx context.Context, in *HostnameReques
 	return out, nil
 }
 
+func (c *configuratorClient) GetHostname(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*HostnameReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(HostnameReply)
+	err := c.cc.Invoke(ctx, Configurator_GetHostname_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *configuratorClient) ListDnsServers(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*DnsListReply, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(DnsListReply)
 	err := c.cc.Invoke(ctx, Configurator_ListDnsServers_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *configuratorClient) AddDnsServer(ctx context.Context, in *AddDnsRequest, opts ...grpc.CallOption) (*Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, Configurator_AddDnsServer_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *configuratorClient) DeleteDnsServer(ctx context.Context, in *DeleteDnsRequest, opts ...grpc.CallOption) (*Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, Configurator_DeleteDnsServer_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -67,8 +106,14 @@ func (c *configuratorClient) ListDnsServers(ctx context.Context, in *Empty, opts
 type ConfiguratorServer interface {
 	// Sets hostname
 	SetHostname(context.Context, *HostnameRequest) (*HostnameReply, error)
+	// Gets hostname
+	GetHostname(context.Context, *Empty) (*HostnameReply, error)
 	// Returns list of DNS servers
 	ListDnsServers(context.Context, *Empty) (*DnsListReply, error)
+	// Adds DNS server to list
+	AddDnsServer(context.Context, *AddDnsRequest) (*Empty, error)
+	// Deletes DNS server from list
+	DeleteDnsServer(context.Context, *DeleteDnsRequest) (*Empty, error)
 	mustEmbedUnimplementedConfiguratorServer()
 }
 
@@ -79,8 +124,17 @@ type UnimplementedConfiguratorServer struct {
 func (UnimplementedConfiguratorServer) SetHostname(context.Context, *HostnameRequest) (*HostnameReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetHostname not implemented")
 }
+func (UnimplementedConfiguratorServer) GetHostname(context.Context, *Empty) (*HostnameReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetHostname not implemented")
+}
 func (UnimplementedConfiguratorServer) ListDnsServers(context.Context, *Empty) (*DnsListReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListDnsServers not implemented")
+}
+func (UnimplementedConfiguratorServer) AddDnsServer(context.Context, *AddDnsRequest) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddDnsServer not implemented")
+}
+func (UnimplementedConfiguratorServer) DeleteDnsServer(context.Context, *DeleteDnsRequest) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteDnsServer not implemented")
 }
 func (UnimplementedConfiguratorServer) mustEmbedUnimplementedConfiguratorServer() {}
 
@@ -113,6 +167,24 @@ func _Configurator_SetHostname_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Configurator_GetHostname_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ConfiguratorServer).GetHostname(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Configurator_GetHostname_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ConfiguratorServer).GetHostname(ctx, req.(*Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Configurator_ListDnsServers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(Empty)
 	if err := dec(in); err != nil {
@@ -131,6 +203,42 @@ func _Configurator_ListDnsServers_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Configurator_AddDnsServer_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddDnsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ConfiguratorServer).AddDnsServer(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Configurator_AddDnsServer_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ConfiguratorServer).AddDnsServer(ctx, req.(*AddDnsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Configurator_DeleteDnsServer_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteDnsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ConfiguratorServer).DeleteDnsServer(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Configurator_DeleteDnsServer_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ConfiguratorServer).DeleteDnsServer(ctx, req.(*DeleteDnsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Configurator_ServiceDesc is the grpc.ServiceDesc for Configurator service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -143,8 +251,20 @@ var Configurator_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Configurator_SetHostname_Handler,
 		},
 		{
+			MethodName: "GetHostname",
+			Handler:    _Configurator_GetHostname_Handler,
+		},
+		{
 			MethodName: "ListDnsServers",
 			Handler:    _Configurator_ListDnsServers_Handler,
+		},
+		{
+			MethodName: "AddDnsServer",
+			Handler:    _Configurator_AddDnsServer_Handler,
+		},
+		{
+			MethodName: "DeleteDnsServer",
+			Handler:    _Configurator_DeleteDnsServer_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
