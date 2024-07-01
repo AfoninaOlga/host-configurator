@@ -63,10 +63,12 @@ cd service
 ##### Run service
 
 
-Replace `grpc_addr: "hostname-service"` with `grpc_addr: "127.0.0.1"` in configs/gateway.yaml
+Replace `grpc_addr: "hostname-service"` with `grpc_addr: "127.0.0.1"` in `configs/gateway.yaml`
+
+Service should be run as root to have permission to write `/etc/hostname` and `/etc/resolv.conf`
 
 ```bash
-./service
+sudo ./service
 ```
 
 ##### Run gRPC-gateway
