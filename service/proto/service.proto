@@ -27,6 +27,12 @@ service Configurator {
       put: "/dns-servers/{server}"
     };
   }
+  // Deletes DNS server from list
+  rpc DeleteDnsServer (DeleteDnsRequest) returns (Empty) {
+    option(google.api.http) = {
+      delete: "/dns-servers/{server}"
+    };
+  }
 }
 
 message Empty { }
@@ -36,6 +42,10 @@ message DnsListReply {
 }
 
 message AddDnsRequest {
+  string server = 1;
+}
+
+message DeleteDnsRequest {
   string server = 1;
 }
 

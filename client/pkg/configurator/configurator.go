@@ -110,3 +110,28 @@ func (c Configurator) AddServer(address string) error {
 	}
 	return nil
 }
+
+func (c Configurator) DeleteServer(address string) error {
+	apiReq, err := http.NewRequest("DELETE", c.apiUrl+"/dns-servers/"+address, nil)
+	if err != nil {
+		return fmt.Errorf("error while creating request occurred: %w", err)
+	}
+	resp, err := c.httpClient.Do(apiReq)
+	if err != nil {
+		return fmt.Errorf("error while sending request occurred: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		var respBody struct {
+			Code    int    `json:"code"`
+			Message string `json:"message"`
+		}
+		err = json.NewDecoder(resp.Body).Decode(&respBody)
+		if err != nil {
+			return fmt.Errorf("error getting response: %w", err)
+		}
+		return fmt.Errorf("error getting servers: %s", respBody.Message)
+	}
+	return nil
+}

@@ -43,8 +43,6 @@ func NewServer(hostNamepath string, resolvePath string) *Server {
 			linesToWrite = append(linesToWrite, fileLine)
 		}
 	}
-	log.Println(linesToWrite)
-	log.Println(servers)
 
 	return &Server{hostnamePath: hostNamepath, resolvePath: resolvePath, servers: servers, linesToWrite: linesToWrite}
 }
@@ -72,19 +70,38 @@ func (s *Server) ListDnsServers(ctx context.Context, in *servicepb.Empty) (*serv
 
 func (s *Server) AddDnsServer(ctx context.Context, in *servicepb.AddDnsRequest) (*servicepb.Empty, error) {
 	if !isValidIpAddress(in.Server) {
+		log.Println("Got invalid address to add")
 		return nil, fmt.Errorf("invalid DNS server")
 	}
 	s.dnsMtx.Lock()
 	defer s.dnsMtx.Unlock()
 
 	if s.has(in.Server) {
-		log.Println()
 		return &servicepb.Empty{}, nil
 	}
 	s.servers = append(s.servers, in.Server)
 	err := s.writeFile()
 	if err != nil {
 		return nil, err
+	}
+	return &servicepb.Empty{}, nil
+}
+
+func (s *Server) DeleteDnsServer(ctx context.Context, in *servicepb.DeleteDnsRequest) (*servicepb.Empty, error) {
+	if !isValidIpAddress(in.Server) {
+		log.Println("Got invalid address to delete")
+		return nil, fmt.Errorf("invalid DNS server")
+	}
+	s.dnsMtx.Lock()
+	defer s.dnsMtx.Unlock()
+
+	if s.delete(in.Server) {
+		err := s.writeFile()
+		if err != nil {
+			// returning address to list, because it wasn't actually deleted
+			s.servers = append(s.servers, in.Server)
+			return nil, err
+		}
 	}
 	return &servicepb.Empty{}, nil
 }
@@ -112,6 +129,21 @@ func isValidHostname(hostname string) bool {
 func (s *Server) has(server string) bool {
 	for _, srv := range s.servers {
 		if srv == server {
+			return true
+		}
+	}
+	return false
+}
+
+func (s *Server) delete(server string) bool {
+	n := len(s.servers)
+	if n == 0 {
+		return false
+	}
+	for i, srv := range s.servers {
+		if server == srv {
+			s.servers[i] = s.servers[n-1]
+			s.servers = s.servers[:n-1]
 			return true
 		}
 	}
