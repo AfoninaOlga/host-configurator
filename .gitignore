@@ -21,6 +21,6 @@
 go.work
 
 .idea/
-*/main
-**/service
-**/gateway
+client/main
+service/service
+service/gateway
