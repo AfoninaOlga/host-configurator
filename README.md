@@ -1,5 +1,6 @@
 [![Build status][status-shield]][status-url]
 [![Linter status][linter-status-shield]][linter-status-url]
+[![Test status][test-status-shield]][test-status-url]
 [![MIT License][license-shield]][license-url]
 
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
@@ -9,6 +10,8 @@
 [status-url]: https://github.com/AfoninaOlga/host-configurator/blob/main/.github/workflows/build.yml
 [linter-status-shield]: https://img.shields.io/github/actions/workflow/status/AfoninaOlga/host-configurator/.github/workflows/lint.yml?branch=main&event=push&style=for-the-badge&label=Lint
 [linter-status-url]: https://github.com/AfoninaOlga/host-configurator/blob/main/.github/workflows/lint.yml
+[test-status-shield]: https://img.shields.io/github/actions/workflow/status/AfoninaOlga/host-configurator/.github/workflows/test.yml?branch=main&event=push&style=for-the-badge&label=Tests
+[test-status-url]: https://github.com/AfoninaOlga/host-configurator/blob/main/.github/workflows/test.yml
 
 # Host Configurator
 
