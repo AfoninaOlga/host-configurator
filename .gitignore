@@ -21,6 +21,6 @@
 go.work
 
 .idea/
-client/main
+client/configurator
 service/service
 service/gateway
