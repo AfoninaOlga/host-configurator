@@ -21,6 +21,7 @@ type Server struct {
 	dnsMtx       sync.RWMutex
 	servers      []string
 	linesToWrite []string
+	hostname     string
 }
 
 func NewServer(hostNamepath string, resolvePath string) *Server {
@@ -58,8 +59,24 @@ func (s *Server) SetHostname(ctx context.Context, in *servicepb.HostnameRequest)
 	if err != nil {
 		return nil, err
 	}
+	s.hostname = in.Hostname
 
 	return &servicepb.HostnameReply{Hostname: in.Hostname}, nil
+}
+
+func (s *Server) GetHostname(ctx context.Context, in *servicepb.Empty) (*servicepb.HostnameReply, error) {
+	s.hostMtx.Lock()
+	defer s.hostMtx.Unlock()
+	if s.hostname != "" {
+		return &servicepb.HostnameReply{Hostname: s.hostname}, nil
+	}
+	data, err := os.ReadFile(s.hostnamePath)
+	if err != nil {
+		return nil, err
+	}
+	s.hostname = strings.TrimSuffix(string(data), "\n")
+
+	return &servicepb.HostnameReply{Hostname: s.hostname}, nil
 }
 
 func (s *Server) ListDnsServers(ctx context.Context, in *servicepb.Empty) (*servicepb.DnsListReply, error) {

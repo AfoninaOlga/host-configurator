@@ -15,6 +15,12 @@ service Configurator {
       body: "*"
     };
   }
+  // Gets hostname
+  rpc GetHostname (Empty) returns (HostnameReply) {
+    option(google.api.http) = {
+      get: "/hostname"
+    };
+  }
   // Returns list of DNS servers
   rpc ListDnsServers (Empty) returns (DnsListReply) {
     option(google.api.http) = {
