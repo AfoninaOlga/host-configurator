@@ -11,12 +11,13 @@ var addServer = &cobra.Command{
 	Long:  "Command adds DNS server to /etc/resolv.conf",
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		err := configurator.AddServer(args[0])
+		server := args[0]
+		err := configurator.AddServer(server)
 		if err != nil {
 			fmt.Printf("Couldn't add server. Reason: %v\n", err)
 			return
 		}
-		fmt.Printf("Server %s added")
+		fmt.Printf("Server %s added", server)
 	},
 }
 
