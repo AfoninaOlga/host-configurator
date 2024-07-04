@@ -13,6 +13,16 @@ type Configurator struct {
 	apiUrl     string
 }
 
+type hostResponse struct {
+	Hostname string `json:"hostname"`
+}
+type dnsResponse struct {
+	Servers []string `json:"servers"`
+}
+type errResponse struct {
+	Message string `json:"message"`
+}
+
 func NewConfigurator(url string) *Configurator {
 	return &Configurator{httpClient: http.Client{Timeout: time.Second * 5}, apiUrl: url}
 }
@@ -33,19 +43,14 @@ func (c Configurator) SetHostname(hostname string) error {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		var respBody struct {
-			Code    int    `json:"code"`
-			Message string `json:"message"`
-		}
+		var respBody errResponse
 		err = json.NewDecoder(resp.Body).Decode(&respBody)
 		if err != nil {
 			return fmt.Errorf("error getting response: %w", err)
 		}
 		return fmt.Errorf("error changing hostname: %s", respBody.Message)
 	} else {
-		var respBody struct {
-			Hostname string `json:"hostname"`
-		}
+		var respBody hostResponse
 		err = json.NewDecoder(resp.Body).Decode(&respBody)
 		if err != nil {
 			return fmt.Errorf("error getting response: %w", err)
@@ -66,19 +71,14 @@ func (c Configurator) ListServers() ([]string, error) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		var respBody struct {
-			Code    int    `json:"code"`
-			Message string `json:"message"`
-		}
+		var respBody errResponse
 		err = json.NewDecoder(resp.Body).Decode(&respBody)
 		if err != nil {
 			return nil, fmt.Errorf("error getting response: %w", err)
 		}
 		return nil, fmt.Errorf("error getting servers: %s", respBody.Message)
 	}
-	var respBody struct {
-		Servers []string `json:"servers"`
-	}
+	var respBody dnsResponse
 	err = json.NewDecoder(resp.Body).Decode(&respBody)
 	if err != nil {
 		return nil, fmt.Errorf("error getting service response: %w", err)
@@ -98,10 +98,7 @@ func (c Configurator) AddServer(address string) error {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		var respBody struct {
-			Code    int    `json:"code"`
-			Message string `json:"message"`
-		}
+		var respBody errResponse
 		err = json.NewDecoder(resp.Body).Decode(&respBody)
 		if err != nil {
 			return fmt.Errorf("error getting response: %w", err)
@@ -123,10 +120,7 @@ func (c Configurator) DeleteServer(address string) error {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		var respBody struct {
-			Code    int    `json:"code"`
-			Message string `json:"message"`
-		}
+		var respBody errResponse
 		err = json.NewDecoder(resp.Body).Decode(&respBody)
 		if err != nil {
 			return fmt.Errorf("error getting response: %w", err)
@@ -150,19 +144,14 @@ func (c Configurator) GetHostname() (string, error) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		var respBody struct {
-			Code    int    `json:"code"`
-			Message string `json:"message"`
-		}
+		var respBody errResponse
 		err = json.NewDecoder(resp.Body).Decode(&respBody)
 		if err != nil {
 			return "", fmt.Errorf("error getting response: %w", err)
 		}
 		return "", fmt.Errorf("error getting hostname: %s", respBody.Message)
 	} else {
-		var respBody struct {
-			Hostname string `json:"hostname"`
-		}
+		var respBody hostResponse
 		err = json.NewDecoder(resp.Body).Decode(&respBody)
 		if err != nil {
 			return "", fmt.Errorf("error getting response: %w", err)
